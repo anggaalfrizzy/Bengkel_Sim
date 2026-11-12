@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulasi Antrian Bengkel · TA-05</title>
+<meta name="description" content="Simulasi kejadian diskrit bengkel dengan 2 montir: flowchart, input data, dan tabel simulasi manual.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist+Mono:wght@400;500&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#F4F1EA;--card:#FBF9F4;--ink:#14130F;--mute:#6B675C;--line:#D9D4C7;--acc:#E5391F;--ok:#1E7A4F;
+--serif:"Instrument Serif",Georgia,serif;--sans:"Inter Tight",system-ui,sans-serif;--mono:"Geist Mono",ui-monospace,Menlo,monospace}
+@media(prefers-color-scheme:dark){:root{--paper:#0E0E0C;--card:#161613;--ink:#ECE8DD;--mute:#9A958A;--line:#2C2B26;--acc:#FF6A4D;--ok:#58C08C}}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+nav{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--paper) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;justify-content:space-between;align-items:center;height:56px}
+nav b{font:500 13px var(--mono);letter-spacing:.04em}nav b i{color:var(--acc);font-style:normal}
+nav div a{font:13px var(--mono);color:var(--mute);text-decoration:none;margin-left:22px}nav div a:hover{color:var(--ink)}
+header.hero{padding:88px 0 56px;border-bottom:1px solid var(--line)}
+.eyebrow{font:12px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+h1{font:400 clamp(48px,8.4vw,112px)/.95 var(--serif);letter-spacing:-.02em;margin:18px 0 26px}h1 em{color:var(--acc)}
+.lead{max-width:620px;color:var(--mute);font-size:18px}
+.meta{display:flex;gap:40px;flex-wrap:wrap;margin-top:40px;font:12px var(--mono);color:var(--mute)}.meta b{display:block;color:var(--ink);font-weight:500;font-size:14px;margin-top:3px}
+section{padding:72px 0;border-bottom:1px solid var(--line)}
+.sh{display:grid;grid-template-columns:90px 1fr;gap:12px;margin-bottom:36px}
+.sh span{font:13px var(--mono);color:var(--acc);padding-top:12px}.sh h2{font:400 44px/1.05 var(--serif);margin:0}.sh p{grid-column:2;color:var(--mute);margin:0;max-width:640px}
+.flow{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:start}
+.flow figure{margin:0;background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px}.flow img{width:100%;display:block}
+dl{margin:0}dt{font:500 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--acc);margin-top:22px}dd{margin:6px 0 0;color:var(--mute)}dt:first-child{margin-top:0}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:30px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:4px;margin-bottom:26px}
+.seg button{all:unset;cursor:pointer;font:13px var(--mono);padding:8px 18px;border-radius:999px;color:var(--mute)}
+.seg button[aria-pressed=true]{background:var(--ink);color:var(--paper)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px 22px}
+label{display:block;font:12px var(--mono);letter-spacing:.04em;color:var(--mute)}
+input[type=number],textarea{width:100%;margin-top:7px;background:var(--paper);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:11px 13px;font:14px var(--mono)}
+textarea{resize:vertical;min-height:70px}.wide{grid-column:1/-1}
+input:focus,textarea:focus,button:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-color:transparent}
+.chk{display:flex;gap:10px;align-items:center;margin-top:24px;color:var(--ink);font:14px var(--sans);letter-spacing:0}.chk input{accent-color:var(--acc);width:17px;height:17px}
+.go{margin-top:28px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.btn{cursor:pointer;border:0;background:var(--acc);color:#fff;font:500 15px var(--sans);padding:14px 28px;border-radius:999px;transition:transform .15s}.btn:hover{transform:translateY(-2px)}
+.btn.ghost{background:none;color:var(--ink);border:1px solid var(--line);font-size:13px;font-family:var(--mono);padding:10px 18px}
+.err{color:var(--acc);font:13px var(--mono)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--card)}
+.kpi{padding:24px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);margin:0 -1px -1px 0}
+.kpi small{font:11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--mute);display:block;min-height:30px}
+.kpi strong{font:400 46px/1.1 var(--serif);display:block;margin-top:8px}.kpi strong u{text-decoration:none;font:12px var(--mono);color:var(--mute);margin-left:4px}
+.sub{font:500 12px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--mute);margin:44px 0 16px;display:flex;justify-content:space-between;align-items:center}
+.util{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:22px}
+.bar{font:13px var(--mono)}.bar div{height:8px;background:var(--line);border-radius:9px;margin-top:9px;overflow:hidden}.bar i{display:block;height:100%;background:var(--ink);border-radius:9px;transition:width .8s cubic-bezier(.2,.8,.2,1)}.bar i.hi{background:var(--acc)}
+.chart{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}.chart svg{width:100%;height:auto;display:block}
+.case{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start}.formula{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 24px;font:13px/1.9 var(--mono);display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:0 36px}.formula b{color:var(--acc);font-weight:500}
+.tw{border:1px solid var(--line);border-radius:14px;overflow:auto;max-height:520px;background:var(--card)}
+table{border-collapse:collapse;width:100%;font:12.5px var(--mono);white-space:nowrap}
+th{position:sticky;top:0;background:var(--ink);color:var(--paper);text-align:left;font-weight:500;padding:11px 14px}
+td{padding:9px 14px;border-top:1px solid var(--line)}tr:hover td{background:color-mix(in srgb,var(--acc) 7%,transparent)}
+.tag{padding:3px 9px;border-radius:99px;border:1px solid var(--line)}.tag.ARRIVAL{color:var(--ink)}.tag.END_REGISTRATION{color:#2F6FDE}.tag.END_REPAIR{color:var(--acc)}.tag.END_PAYMENT{color:var(--ok)}
+.idle{color:var(--mute)}
+footer{padding:40px 0 60px;font:12px var(--mono);color:var(--mute);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+#out{display:none}
+@media(max-width:820px){.case{grid-template-columns:1fr}.flow{grid-template-columns:1fr}.sh{grid-template-columns:1fr}.sh p{grid-column:1}nav div{display:none}}
+</style>
+</head>
+<body>
+<nav><div class="wrap"><b>BENGKEL<i>/</i>DES</b><div><a href="#alur">Alur</a><a href="#kasus">Studi kasus</a><a href="#input">Input</a><a href="#hasil">Hasil</a></div></div></nav>
+
+<header class="hero"><div class="wrap">
+<div class="eyebrow">TA-05 · Pemodelan dan Simulasi · Modul 5</div>
+<h1>Antrian bengkel,<br><em>dihitung</em> kejadian demi kejadian.</h1>
+<p class="lead">Simulasi kejadian diskrit untuk bengkel dengan dua montir dan satu resepsionis. Masukkan data, lalu telusuri setiap langkah: jam simulasi, event calendar, antrian, dan status server.</p>
+<div class="meta">
+    <div>Disusun oleh <b>Angga Al Frizzy Heriawan · 301240053</b></div>
+    <div>Metode <b>Discrete-Event Simulation (DES)</b></div>
+    <div>Mesin <b>Python · Flask</b></div>
+</div>
+
+<section id="alur"><div class="wrap">
+<div class="sh"><span>01</span><h2>Alur logika</h2><p>Perjalanan satu mobil, dari kedatangan sampai keluar bengkel.</p></div>
+<div class="flow">
+<figure><img src="{{ url_for('static', filename='flowchart.png') }}" alt="Flowchart alur satu mobil di bengkel dengan dua montir"></figure>
+<dl>
+<dt>ARRIVAL</dt><dd>Mobil tiba dan masuk antrian daftar. Jika resepsionis bebas, pendaftaran langsung dimulai.</dd>
+<dt>END_REGISTRATION</dt><dd>Pendaftaran selesai. Mobil dicek ke montir: bebas, langsung diperbaiki; sibuk, menunggu di ruang tunggu.</dd>
+<dt>END_REPAIR</dt><dd>Perbaikan selesai. Montir dibebaskan dan mobil masuk antrian kasir. Mobil berikutnya di ruang tunggu langsung diambil.</dd>
+<dt>END_PAYMENT</dt><dd>Pembayaran selesai oleh resepsionis yang sama. Mobil keluar dari bengkel.</dd>
+<dt>Asumsi</dt><dd>Satu resepsionis melayani pendaftaran dan pembayaran. Antrian FIFO. Jika keduanya menunggu, pembayaran didahulukan (dapat diubah).</dd>
+</dl></div></div></section>
+
+<section id="kasus"><div class="wrap">
+<div class="sh"><span>02</span><h2>Studi kasus</h2><p>Bengkel dengan dua montir dan satu resepsionis yang merangkap kasir. Tujuh mobil datang dalam rentang waktu singkat, sehingga ruang tunggu terbentuk.</p></div>
+<div class="case">
+<div><dl><dt>Sistem</dt><dd>2 montir (perbaikan), 1 resepsionis (pendaftaran dan pembayaran), 1 ruang tunggu untuk mobil yang menunggu montir.</dd>
+<dt>Aturan</dt><dd>Antrian FIFO. Montir 1 dipilih lebih dulu jika keduanya bebas. Jika resepsionis bebas dan pendaftaran serta pembayaran sama-sama menunggu, pembayaran didahulukan.</dd>
+<dt>Pertanyaan</dt><dd>Berapa lama mobil menunggu montir, seberapa sibuk tiap server, dan di mana bottleneck sistem?</dd></dl>
+<div class="go"><button class="btn" type="button" id="load">Muat data contoh ke form</button><button class="btn ghost" type="button" id="runcase">Langsung jalankan</button></div></div>
+<div class="tw"><table id="kt"></table></div>
+</div></div></section>
+
+<section id="input"><div class="wrap">
+<div class="sh"><span>03</span><h2>Input data</h2><p>Mode manual untuk mencocokkan dengan perhitungan tangan, mode acak untuk eksperimen dengan distribusi probabilitas.</p></div>
+<form class="panel" id="f">
+<div class="seg" role="group" aria-label="Mode input"><button type="button" aria-pressed="true" data-m="manual">Manual</button><button type="button" aria-pressed="false" data-m="acak">Acak</button></div>
+<div class="grid">
+<label>Jumlah mobil<input type="number" name="num_mobil" id="n" value="7" min="2" max="200"></label>
+<label>Jumlah montir<input type="number" name="montir" value="2" min="1" max="5"></label>
+</div>
+<div class="grid" id="manual" style="margin-top:18px">
+<label class="wide">Waktu antar-kedatangan (n − 1 nilai, menit)<textarea name="iat">3, 2, 4, 1, 5, 2</textarea></label>
+<label class="wide">Durasi pendaftaran (n nilai)<textarea name="t_daftar">2, 2, 1, 2, 1, 2, 1</textarea></label>
+<label class="wide">Durasi perbaikan (n nilai)<textarea name="t_servis">15, 20, 12, 18, 10, 14, 16</textarea></label>
+<label class="wide">Durasi pembayaran (n nilai)<textarea name="t_bayar">2, 3, 2, 2, 3, 2, 2</textarea></label>
+</div>
+<div class="grid" id="acak" style="margin-top:18px;display:none">
+<label>Rata-rata antar-kedatangan (eksp.)<input type="number" step="any" name="mean_iat" value="10"></label>
+<label>Rata-rata pendaftaran (eksp.)<input type="number" step="any" name="mean_daftar" value="2"></label>
+<label>Rata-rata perbaikan (normal)<input type="number" step="any" name="mean_servis" value="20"></label>
+<label>Std. perbaikan<input type="number" step="any" name="std_servis" value="5"></label>
+<label>Rata-rata pembayaran (eksp.)<input type="number" step="any" name="mean_bayar" value="3"></label>
+<label>Seed<input type="number" name="seed" value="42"></label>
+</div>
+<label class="chk"><input type="checkbox" name="prioritas_kasir" checked> Pembayaran didahulukan dari pendaftaran</label>
+<div class="go"><button class="btn" type="submit">Jalankan simulasi</button><span class="err" id="err" role="alert"></span></div>
+</form></div></section>
+
+<section id="hasil"><div class="wrap">
+<div class="sh"><span>04</span><h2>Hasil simulasi</h2><p id="hint">Jalankan simulasi untuk melihat hasilnya.</p></div>
+<div id="out">
+<div class="kpis" id="kpis"></div>
+<div class="sub">Utilisasi server</div><div class="util" id="util"></div>
+<div class="sub">Panjang ruang tunggu</div><div class="chart" id="chart"></div>
+<div class="sub">Perhitungan manual</div>
+<div class="formula"><span><b>Datang(n)</b> = Datang(n−1) + IAT(n)</span><span><b>Mulai daftar</b> = Datang + tunggu antrian daftar</span><span><b>Selesai daftar</b> = Mulai daftar + durasi daftar</span><span><b>Mulai servis</b> = Selesai daftar + tunggu montir</span><span><b>Selesai servis</b> = Mulai servis + durasi servis</span><span><b>Mulai bayar</b> = Selesai servis + tunggu kasir</span><span><b>Selesai bayar</b> = Mulai bayar + durasi bayar</span><span><b>Waktu di bengkel</b> = Selesai bayar − Datang</span></div>
+<div class="tw" id="man" style="margin-top:16px"></div>
+<div class="sub">Tabel simulasi (event log)<button class="btn ghost" id="csv" type="button">Unduh CSV</button></div><div class="tw" id="log"></div>
+<div class="sub">Rincian waktu tiap mobil</div><div class="tw" id="det"></div>
+</div></div></section>
+
+<footer class="wrap">
+    <span>Angga Al Frizzy Heriawan · 301240053</span>
+    <span>Pemodelan dan Simulasi · Semester 5</span>
+</footer>
+
+<script>
+const $=s=>document.querySelector(s),f=$('#f');let mode='manual',last=null;
+document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{mode=b.dataset.m;
+ document.querySelectorAll('.seg button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+ $('#manual').style.display=mode=='manual'?'':'none';$('#acak').style.display=mode=='acak'?'':'none'});
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+function table(rows,tag){const k=Object.keys(rows[0]);
+ return '<table><thead><tr>'+k.map(x=>`<th>${esc(x)}</th>`).join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+k.map(c=>{
+  let v=r[c];if(tag&&c==='Event')v=`<span class="tag ${v}">${v}</span>`;else if(v==='IDLE')v='<span class="idle">IDLE</span>';else v=esc(v);return `<td>${v}</td>`}).join('')+'</tr>').join('')+'</tbody></table>'}
+function chart(p){const W=900,H=230,m=34,T=p[p.length-1][0]||1,M=Math.max(1,...p.map(x=>x[1])),X=t=>m+t/T*(W-m*2),Y=v=>H-m-v/M*(H-m*2);
+ let d=`M${X(0)} ${Y(0)}`,pv=0;p.forEach(([t,v])=>{d+=`L${X(t)} ${Y(pv)}L${X(t)} ${Y(v)}`;pv=v});
+ const g=[...Array(M+1).keys()].map(i=>`<line x1="${m}" x2="${W-m}" y1="${Y(i)}" y2="${Y(i)}" stroke="var(--line)"/><text x="8" y="${Y(i)+4}" fill="var(--mute)" font-size="11" font-family="var(--mono)">${i}</text>`).join('');
+ return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Grafik panjang ruang tunggu">${g}<path d="${d}L${X(T)} ${Y(0)}Z" fill="var(--acc)" opacity=".12"/><path d="${d}" fill="none" stroke="var(--acc)" stroke-width="2"/><text x="${W-m}" y="${H-8}" text-anchor="end" fill="var(--mute)" font-size="11" font-family="var(--mono)">clock (menit) → ${T.toFixed(1)}</text></svg>`}
+const KASUS={n:7,iat:'3, 2, 4, 1, 5, 2',t_daftar:'2, 2, 1, 2, 1, 2, 1',t_servis:'15, 20, 12, 18, 10, 14, 16',t_bayar:'2, 3, 2, 2, 3, 2, 2'};
+(()=>{const q=s=>s.split(',').map(x=>x.trim());const a=[q(KASUS.t_daftar),q(KASUS.t_servis),q(KASUS.t_bayar)],iat=['-',...q(KASUS.iat)];
+ $('#kt').innerHTML='<thead><tr><th>Mobil</th><th>IAT</th><th>Durasi daftar</th><th>Durasi servis</th><th>Durasi bayar</th></tr></thead><tbody>'+iat.map((v,k)=>`<tr><td>${k+1}</td><td>${v}</td><td>${a[0][k]}</td><td>${a[1][k]}</td><td>${a[2][k]}</td></tr>`).join('')+'</tbody>'})();
+function muat(){document.querySelector('[data-m=manual]').click();f.num_mobil.value=KASUS.n;f.montir.value=2;f.prioritas_kasir.checked=true;
+ ['iat','t_daftar','t_servis','t_bayar'].forEach(k=>f[k].value=KASUS[k])}
+$('#load').onclick=()=>{muat();$('#input').scrollIntoView()};
+$('#runcase').onclick=()=>{muat();f.requestSubmit()};
+f.onsubmit=async e=>{e.preventDefault();$('#err').textContent='';const fd=new FormData(f),b={mode,prioritas_kasir:f.prioritas_kasir.checked};
+ fd.forEach((v,k)=>{if(k!=='prioritas_kasir')b[k]=v});
+ const r=await fetch('/api/simulate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)}),d=await r.json();
+ if(!r.ok){$('#err').textContent=d.error;return}
+ last=d;const h=d.hasil,ks=Object.keys(h),u=ks.filter(k=>k.startsWith('Utilisasi')),o=ks.filter(k=>!u.includes(k)&&!k.startsWith('Maks tunggu')&&!k.includes('daftar')&&!k.includes('kasir'));
+ $('#kpis').innerHTML=o.map(k=>{const m=k.match(/^(.*?)(?: \((.*)\))?$/);return `<div class="kpi"><small>${esc(m[1])}</small><strong>${h[k]}<u>${m[2]||''}</u></strong></div>`}).join('');
+ $('#util').innerHTML=u.map(k=>`<div class="bar">${esc(k.replace(' (%)',''))} <b style="float:right">${h[k]}%</b><div><i class="${h[k]>85?'hi':''}" style="width:${Math.min(100,h[k])}%"></i></div></div>`).join('');
+ $('#chart').innerHTML=chart(d.antrian);$('#man').innerHTML=table(d.manual);$('#log').innerHTML=table(d.log,true);$('#det').innerHTML=table(d.detail);
+ $('#out').style.display='block';$('#hint').textContent=`${h['Total mobil selesai']} mobil selesai dalam ${h['Total waktu simulasi (menit)']} menit simulasi.`;
+ $('#hasil').scrollIntoView()};
+$('#csv').onclick=()=>{const k=Object.keys(last.log[0]),c=[k.join(',')].concat(last.log.map(r=>k.map(x=>'"'+r[x]+'"').join(','))).join('\n');
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([c],{type:'text/csv'}));a.download='event_log_bengkel.csv';a.click()};
+</script>
+</body></html>
